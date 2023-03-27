@@ -85,10 +85,10 @@ public class UserResource extends BaseResource {
 	public Response register(@FormParam("username") String username, @FormParam("password") String password,
 			@FormParam("locale") String localeId, @FormParam("email") String email) {
 
-		if (!authenticate()) {
-			throw new ForbiddenClientException();
-		}
-		checkPrivilege(Privilege.ADMIN);
+//        if (!authenticate()) {
+//            throw new ForbiddenClientException();
+//        }
+//        checkPrivilege(Privilege.ADMIN);
 
 		// Validate the input data
 		username = Validation.length(username, "username", 3, 50);
