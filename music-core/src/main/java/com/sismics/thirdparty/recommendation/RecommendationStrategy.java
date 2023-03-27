@@ -4,6 +4,6 @@ import javax.ws.rs.core.Response;
 
 public interface RecommendationStrategy {
 	
-	public Response recommend(String param) throws Exception;
+	public Response recommend(RecommendDto dto) throws Exception;
 
 }

@@ -138,7 +138,8 @@ public class SpotifyRecommendStrategy implements RecommendationStrategy {
 	}
 
 	@Override
-	public Response recommend(String artists) throws Exception {
+	public Response recommend(RecommendDto dto) throws Exception {
+		String artists = dto.getArtists();
 		artists = artists.substring(0, artists.length() - 1);
 
 		String[] artistsList = artists.split(",");
