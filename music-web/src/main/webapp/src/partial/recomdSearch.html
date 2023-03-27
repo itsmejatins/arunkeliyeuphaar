@@ -1,0 +1,45 @@
+<html>
+  <head>
+    <title>Recommendation Based Search</title>
+    <head>
+	<style>
+		.card {
+			border: 1px solid black;
+			padding: 10px;
+			margin: 10px;
+		}
+		
+		.card-container {
+			max-height: 300px;
+			overflow-y: scroll; 
+		}
+	</style>
+</head>
+  </head>
+  <body>
+  	<div class="text-center">
+    <h1>Search Based Recommendation</h1>
+    </div>
+    <br>
+    <br>
+    
+    <form>
+      <input size="60" type="text" placeholder="Input list of songs separated by -" ng-model = "recomData">
+
+      <button class="btn btn-primary mr-8" ng-click = "searchSpotifyRecom(recomData)">Spotify Search</button>
+      <button class="btn btn-primary mr-7" ng-click = "searchLastFMRecom(recomData)">LastFM Search</button>
+      </form>
+      
+      
+      
+      <div id="card-container">
+		<div ng-repeat="entry in rData | limitTo: 20" class="card">
+			<h2>{{ entry.track }}</h2>
+			<p><strong>Artist:</strong> {{ entry.artist }}</p>
+			<p><strong>URL:</strong> <a href="{{ entry.url }}" target="_blank">{{ entry.url }}</a></p>
+		</div>
+		
+	</div>
+    
+  </body>
+</html>

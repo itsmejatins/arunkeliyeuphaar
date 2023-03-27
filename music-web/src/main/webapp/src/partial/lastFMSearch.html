@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <title>LastFM Search</title>
+  </head>
+  <style>
+		.card {
+			border: 1px solid black;
+			padding: 10px;
+			margin: 10px;
+		}
+		
+		.card-container {
+			max-height: 300px;
+			overflow-y: scroll; 
+		}
+	</style>
+  <body>
+  <div class="text-center">
+    <h1>LastFM Search</h1>
+    </div>
+    <br>
+    <br>
+    <form>
+      <input type="text" size="40" placeholder="Search..." ng-model = "searchData">
+      <button  class="btn btn-primary mr-8" ng-click = "searchLastFMSongs(searchData)">Search</button>
+      
+      <div id="card-container">
+		<div ng-repeat="entry in myData" class="card">
+			<h2>{{ entry.track }}</h2>
+			<p><strong>Artist:</strong> {{ entry.artist }}</p>
+			<p><strong>URL:</strong> <a href="{{ entry.url }}" target="_blank">{{ entry.url }}</a></p>
+		</div>
+	</div>
+    </form>
+  </body>
+</html>
