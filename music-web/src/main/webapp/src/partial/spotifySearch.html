@@ -24,7 +24,7 @@
     <br>
     <form>
       <input type="text" size="40" placeholder="Search..." ng-model = "searchData">
-      <button class="btn btn-primary mr-8" ng-click = "searchSpotifySongs(searchData)">Search</button>
+      <button class="btn btn-primary mr-8" ng-click = "searchThirdParty(searchData, 'spotify')">Search</button>
       <br>
       <div id="card-container">
 		<div ng-repeat="entry in myData | limitTo: 20" class="card">

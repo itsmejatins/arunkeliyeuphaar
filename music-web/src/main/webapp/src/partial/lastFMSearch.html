@@ -22,7 +22,7 @@
     <br>
     <form>
       <input type="text" size="40" placeholder="Search..." ng-model = "searchData">
-      <button  class="btn btn-primary mr-8" ng-click = "searchLastFMSongs(searchData)">Search</button>
+      <button  class="btn btn-primary mr-8" ng-click = "searchThirdParty(searchData, 'lastfm')">Search</button>
       
       <div id="card-container">
 		<div ng-repeat="entry in myData" class="card">

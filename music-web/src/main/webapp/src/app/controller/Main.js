@@ -11,23 +11,11 @@ angular.module('music').controller('Main', function($rootScope, $state, $scope, 
 			.put($scope.user);
 	}
 	$scope.partyMode = Playlist.isPartyMode();
-
-	$scope.searchSpotifySongs = function(searchData) {
-
-		Restangular.one('user/searchOnSpotify').get({ sentData: searchData }).then(function(response) {
+	
+	$scope.searchThirdParty = function(searchData, type) {
+		Restangular.one('user/searchThirdParty').get({ sentData: searchData, service: type}).then(function (response) {
 			$scope.myData = response.tracks;
-
 		})
-	}
-
-	$scope.searchLastFMSongs = function(searchData) {
-
-		Restangular.one('user/searchOnLastFM').get({ sentData: searchData }).then(function(response) {
-
-			$scope.myData = response.tracks;
-
-		})
-
 	}
 
 	$scope.searchSpotifyRecom = function(searchData) {

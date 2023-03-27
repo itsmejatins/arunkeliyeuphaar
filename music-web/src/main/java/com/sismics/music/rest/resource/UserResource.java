@@ -24,6 +24,12 @@ import com.sismics.rest.exception.ForbiddenClientException;
 import com.sismics.rest.exception.ServerException;
 import com.sismics.rest.util.Validation;
 import com.sismics.security.UserPrincipal;
+import com.sismics.thirdparty.recommendation.LastFmRecommendStrategy;
+import com.sismics.thirdparty.recommendation.RecommendationStrategy;
+import com.sismics.thirdparty.recommendation.SpotifyRecommendStrategy;
+import com.sismics.thirdparty.search.LastFmSearchStrategy;
+import com.sismics.thirdparty.search.SearchStrategy;
+import com.sismics.thirdparty.search.SpotifySearchStrategy;
 import com.sismics.util.LocaleUtil;
 import com.sismics.util.filter.TokenBasedSecurityFilter;
 import de.umass.lastfm.Session;
@@ -644,167 +650,63 @@ public class UserResource extends BaseResource {
 		}
 		return null;
 	}
-	
-	
+
 // *******************************************************************************************************
-	
-	public JsonNode getSearchResultsSpotify(String search, String token,String type) throws Exception {
-		token = "Bearer " + token;
-
-		String urlSearch = "https://api.spotify.com/v1/search?type=";
-		urlSearch += type;
-		urlSearch += "&q=";
-		urlSearch += search;
-		urlSearch += "&limit=10&offset=10";
-		URL url = new URL(urlSearch);
-		
-		System.out.println(url);
-
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-		connection.setRequestMethod("GET");
-		connection.setRequestProperty("Authorization", token);
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setRequestProperty("Connection", "keep-alive");
-
-		// Send the request and get response
-		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		ObjectMapper mapper = new ObjectMapper();
-		JsonParser parser = mapper.getFactory().createParser(response.toString());
-
-		JsonNode jsonNode = mapper.readTree(parser);
-
-
-		return jsonNode;
-
-	}
 
 	@GET
-	@Path("searchOnSpotify")
-	public Response searchSpotify(@QueryParam("sentData") String sentData) throws Exception {
+	@Path("searchThirdParty")
+	public Response search(@QueryParam("sentData") String sentData, @QueryParam("service") String service) {
+		SearchStrategy strategy = null;
+		if (service.equals("spotify"))
+			strategy = new SpotifySearchStrategy();
+		else if (service.equals("lastfm"))
+			strategy = new LastFmSearchStrategy();
 
-		String search = sentData.replace(" ", "+");
-		String token = getAccessToken();
-
-		String type = "track";
-		JsonNode jsonNode = getSearchResultsSpotify(search, token,type);
-		
-		JsonNode s = jsonNode.get("tracks").get("items");
-
-
-		JsonObjectBuilder finalBuilder = Json.createObjectBuilder();
-		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-
-		for (JsonNode node : s) {
-			JsonObjectBuilder localBuilder = Json.createObjectBuilder();
-			
-			String track = node.get("name").toString();
-			track = track.substring(1, track.length() - 1);
-			localBuilder.add("track", track);
-			
-			String artist = node.get("artists").get(0).get("name").toString();
-			artist = artist.substring(1, artist.length() - 1);
-			localBuilder.add("artist", artist);
-			
-			String url = node.get("artists").get(0).get("external_urls").get("spotify").toString();
-			url = url.substring(1, url.length() - 1);
-			localBuilder.add("url", url);
-			
-			arrayBuilder.add(localBuilder);
-			
-			
+		Response result = null;
+		try {
+			result = strategy.search(sentData);
+		} catch (Exception e) {
+			System.out.println("Search third party failed!");
+			e.printStackTrace();
 		}
-		finalBuilder.add("tracks", arrayBuilder);
-		return renderJson(finalBuilder);
 
+		return result;
 	}
 
-	public static JsonNode getSearchResultsLastFM(String search) throws Exception {
-
-		String urlSearch = "https://ws.audioscrobbler.com/2.0/?method=track.search&track=";
-		urlSearch += search;
-		urlSearch += "&api_key=e3dbf66a59b12c26d8e7308512a79120&format=json&limit=10";
-
-		URL url = new URL(urlSearch);
-
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-		connection.setRequestMethod("GET");
-
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setRequestProperty("Connection", "keep-alive");
-
-		// Send the request and get response
-		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		ObjectMapper mapper = new ObjectMapper();
-		JsonParser parser = mapper.getFactory().createParser(response.toString());
-
-		JsonNode jsonNode = mapper.readTree(parser);
-		JsonNode s = jsonNode.get("results").get("trackmatches").get("track");
-		return s;
-
-	}
-
+	
 	@GET
-	@Path("searchOnLastFM")
-	public Response searchLastFM(@QueryParam("sentData") String sentData) throws Exception {
-
-		String search = sentData.replace(" ", "+");
-
-		JsonNode s = getSearchResultsLastFM(search);
-
-		JsonObjectBuilder finalBuilder = Json.createObjectBuilder();
-		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
-
-		for (JsonNode node : s) {
-			JsonObjectBuilder localBuilder = Json.createObjectBuilder();
-			
-			String track = node.get("name").toString();
-			track = track.substring(1, track.length() - 1);
-			localBuilder.add("track",track);
-			
-			String artist = node.get("artist").toString();
-			artist = artist.substring(1, artist.length() - 1);
-			localBuilder.add("artist",artist);
-			
-			
-			String url = node.get("url").toString();
-			url = url.substring(1, url.length() - 1);
-			localBuilder.add("url",url);
-
-			arrayBuilder.add(localBuilder);
+	@Path("recommendThirdParty")
+	public Response recommend(@QueryParam("A") String artists, @QueryParam("service") String service) throws Exception {
+	
+		RecommendationStrategy strategy = null;
+		if(service.equals("spotify"))
+			strategy = new SpotifyRecommendStrategy();
+		else if (service.equals("lastfm"))
+			strategy = new LastFmRecommendStrategy();
+		
+		Response response = null;
+		try {
+			response = strategy.recommend(artists);
+		}
+		catch(Exception e)
+		{
+			System.out.println("Recommendation from third party failed!");
+			e.printStackTrace();
 		}
 		
-		finalBuilder.add("tracks", arrayBuilder);
-		return renderJson(finalBuilder);
-
+		return response;
 	}
 	
-	
-	public static JsonNode getSpotifyRecommendation(String artistSeed,String token) throws Exception {
+	public static JsonNode getSpotifyRecommendation(String artistSeed, String token) throws Exception {
 		token = "Bearer " + token;
 		String urlSearch = "https://api.spotify.com/v1/recommendations?&seed_artists=";
-		urlSearch+=	artistSeed;
+		urlSearch += artistSeed;
 		urlSearch += "&limit=5";
-		
+
 		System.out.println(urlSearch);
 
 		URL url = new URL(urlSearch);
-		
+
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
 		connection.setRequestMethod("GET");
@@ -820,103 +722,95 @@ public class UserResource extends BaseResource {
 			response.append(inputLine);
 		}
 		in.close();
-		
 
 		ObjectMapper mapper = new ObjectMapper();
 		JsonParser parser = mapper.getFactory().createParser(response.toString());
 
 		JsonNode jsonNode = mapper.readTree(parser);
-		
-	
+
 		return jsonNode;
 
 	}
 
-	
 	@GET
 	@Path("recommendSpotify")
 	public Response recFromSpotify(@QueryParam("A") String artists) throws Exception {
-		
+
 		artists = artists.substring(0, artists.length() - 1);
-		
-		String [] artistsList = artists.split(",");
-		
+
+		String[] artistsList = artists.split(",");
+
 		String token = getAccessToken();
-		
-	
+
 		for (int i = 0; i < artistsList.length; i++) {
 			artistsList[i] = artistsList[i].replace(" ", "+");
-			
-	    }
-		
+
+		}
+
 		JsonObjectBuilder finalBuilder = Json.createObjectBuilder();
 		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
 		List<String> artistSeeds = new ArrayList<>();
-		
-		for(int i = 0 ; i < artistsList.length; i++) {
+
+		for (int i = 0; i < artistsList.length; i++) {
 			String search = artistsList[i];
-	
+
 			String type = "artist";
 			JsonNode jsonNode = getSearchResultsSpotify(search, token, type);
-		
-			
+
 			JsonNode s = jsonNode.get("artists").get("items");
-			
-	
+
 			for (JsonNode node : s) {
 				String str = node.get("href").toString();
 				str = str.substring(1, str.length() - 1);
 				String[] temp = str.split("/");
-				String seedValue = temp[temp.length-1];
+				String seedValue = temp[temp.length - 1];
 				artistSeeds.add(seedValue);
 				break;
 			}
-			
+
 		}
-		
+
 		for (String seed : artistSeeds) {
-			
-			JsonNode jsonNode = getSpotifyRecommendation(seed,token);
+
+			JsonNode jsonNode = getSpotifyRecommendation(seed, token);
 			JsonNode s = jsonNode.get("tracks");
-			
+
 			for (JsonNode node : s) {
 				JsonObjectBuilder localBuilder = Json.createObjectBuilder();
-				
+
 				String track = node.get("album").get("name").toString();
-				track =  track.substring(1, track.length() - 1);
-				localBuilder.add("track",track);
-				
+				track = track.substring(1, track.length() - 1);
+				localBuilder.add("track", track);
+
 				String artist = node.get("artists").get(0).get("name").toString();
 				artist = artist.substring(1, artist.length() - 1);
-				localBuilder.add("artist",artist);
-				
+				localBuilder.add("artist", artist);
+
 				String url = node.get("artists").get(0).get("external_urls").get("spotify").toString();
 				url = url.substring(1, url.length() - 1);
-				localBuilder.add("url",url);
-			
+				localBuilder.add("url", url);
+
 				arrayBuilder.add(localBuilder);
 			}
-		
+
 		}
-		
+
 		finalBuilder.add("tracks", arrayBuilder);
 		return renderJson(finalBuilder);
-		
-	
+
 	}
-	
-	
-public static JsonNode getLastFMRecommendation(String artist, String title) throws Exception {
-		
+
+	public static JsonNode getLastFMRecommendation(String artist, String title) throws Exception {
+
 		String urlSearch = "http://ws.audioscrobbler.com/2.0/?method=track.getsimilar&artist=";
-		urlSearch+=	artist;
+		urlSearch += artist;
 		urlSearch += "&track=";
 		urlSearch += title;
 		urlSearch += "&api_key=e3dbf66a59b12c26d8e7308512a79120&format=json&limit=5";
-		
+
 		URL url = new URL(urlSearch);
-		
+
 		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
 		connection.setRequestMethod("GET");
@@ -938,87 +832,76 @@ public static JsonNode getLastFMRecommendation(String artist, String title) thro
 
 		JsonNode jsonNode = mapper.readTree(parser);
 		return jsonNode;
-		
+
 	}
-	
-	
+
 	@GET
 	@Path("recommendLastFm")
-	public Response recFromLastFM(@QueryParam("A") String artists,@QueryParam("T") String titles) throws Exception {
-		
+	public Response recFromLastFM(@QueryParam("A") String artists, @QueryParam("T") String titles) throws Exception {
+
 		System.out.println(artists);
 		System.out.println(titles);
-		
+
 //Preprocessing Steps
-		
+
 		artists = artists.substring(0, artists.length() - 1);
 		titles = titles.substring(0, titles.length() - 1);
-		
-		String [] artistsList = artists.split(",");
-		String [] titlesList = titles.split(",");
-		
+
+		String[] artistsList = artists.split(",");
+		String[] titlesList = titles.split(",");
+
 		for (int i = 0; i < artistsList.length; i++) {
 			artistsList[i] = artistsList[i].replace(" ", "+");
 			titlesList[i] = titlesList[i].replace(" ", "+");
-	    }
+		}
 
 //Getting recommended tracks and adding 
-		
+
 		JsonObjectBuilder finalBuilder = Json.createObjectBuilder();
 		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
-		for(int i = 0 ; i < artistsList.length; i++) {
-			
-		
-			JsonNode jsonNode = getLastFMRecommendation(artistsList[i],titlesList[i]);
-			
+		for (int i = 0; i < artistsList.length; i++) {
+
+			JsonNode jsonNode = getLastFMRecommendation(artistsList[i], titlesList[i]);
+
 			JsonNode s = jsonNode.get("similartracks").get("track");
-			
+
 			for (JsonNode node : s) {
-				
+
 				JsonObjectBuilder localBuilder = Json.createObjectBuilder();
 				String track = node.get("name").toString();
 				track = track.substring(1, track.length() - 1);
 				localBuilder.add("track", track);
-				
+
 				String artist = node.get("artist").get("name").toString();
 				artist = artist.substring(1, artist.length() - 1);
 				localBuilder.add("artist", artist);
-				
+
 				String url = node.get("url").toString();
 				url = url.substring(1, url.length() - 1);
-				localBuilder.add("url",url);
-				
+				localBuilder.add("url", url);
+
 				arrayBuilder.add(localBuilder);
 			}
-		
+
 		}
-		
+
 		finalBuilder.add("tracks", arrayBuilder);
 		return renderJson(finalBuilder);
-	
+
 	}
-//	
-//	@GET
-//	@Path("recomdSearchSpotify")
-//	public Response recSearchSpotify(@QueryParam("sentData") String search) throws Exception {
-//		
-//		String[] searches = search.split("-");
-//		
-//		
-//		
-//		
-//		
-//		
-//	}
-	
-	
-	
-	
-	
-	
-	
-	
-	
+////	
+////	@GET
+////	@Path("recomdSearchSpotify")
+////	public Response recSearchSpotify(@QueryParam("sentData") String search) throws Exception {
+////		
+////		String[] searches = search.split("-");
+////		
+////		
+////		
+////		
+////		
+////		
+////	}
 
 }
