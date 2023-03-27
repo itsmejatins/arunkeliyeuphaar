@@ -4,6 +4,12 @@
  * Main controller.
  */
 angular.module('music').controller('Main', function($rootScope, $state, $scope, Playlist, Album, Restangular) {
+	$scope.register = function() {
+		var promise = null;
+		promise = Restangular
+			.one('user')
+			.put($scope.user);
+	}
 	$scope.partyMode = Playlist.isPartyMode();
 
 	$scope.searchSpotifySongs = function(searchData) {
@@ -15,60 +21,60 @@ angular.module('music').controller('Main', function($rootScope, $state, $scope, 
 	}
 
 	$scope.searchLastFMSongs = function(searchData) {
-		
+
 		Restangular.one('user/searchOnLastFM').get({ sentData: searchData }).then(function(response) {
-			
+
 			$scope.myData = response.tracks;
 
 		})
 
 	}
-	
+
 	$scope.searchSpotifyRecom = function(searchData) {
-		
+
 		var myArray = searchData.split("-");
-		
+
 		var promises = [];
 
 		for (var i = 0; i < myArray.length; i++) {
-			
-		  var promise = Restangular.one('user/searchOnSpotify').get({ sentData: myArray[i] });
-		  promises.push(promise);
-  			
+
+			var promise = Restangular.one('user/searchOnSpotify').get({ sentData: myArray[i] });
+			promises.push(promise);
+
 		}
-		
+
 		Promise.all(promises).then(function(responses) {
-		  var dataa = [];
-		  for (var j = 0; j < responses.length; j++) {
-		    dataa = dataa.concat(responses[j].tracks);
-		  }
-		  $scope.rData = dataa;
-		  
+			var dataa = [];
+			for (var j = 0; j < responses.length; j++) {
+				dataa = dataa.concat(responses[j].tracks);
+			}
+			$scope.rData = dataa;
+
 		});
-		
-		
+
+
 	}
-	
+
 	$scope.searchLastFMRecom = function(searchData) {
 
 		var myArray = searchData.split("-");
-		
+
 		var promises = [];
 
 		for (var i = 0; i < myArray.length; i++) {
-			
-		  var promise = Restangular.one('user/searchOnLastFM').get({ sentData: myArray[i] });
-		  promises.push(promise);
-  			
+
+			var promise = Restangular.one('user/searchOnLastFM').get({ sentData: myArray[i] });
+			promises.push(promise);
+
 		}
-		
+
 		Promise.all(promises).then(function(responses) {
-		  var dataa = [];
-		  for (var j = 0; j < responses.length; j++) {
-		    dataa = dataa.concat(responses[j].tracks);
-		  }
-		  $scope.rData = dataa;
-		  
+			var dataa = [];
+			for (var j = 0; j < responses.length; j++) {
+				dataa = dataa.concat(responses[j].tracks);
+			}
+			$scope.rData = dataa;
+
 		});
 
 	}

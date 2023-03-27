@@ -29,7 +29,7 @@ angular.module('music',
 				views: {
 					'page': {
 						templateUrl: 'partial/register.html',
-						controller: 'Register'
+						controller: 'Main'
 					}
 				}
 			})
