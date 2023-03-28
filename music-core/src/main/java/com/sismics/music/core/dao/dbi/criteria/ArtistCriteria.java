@@ -1,11 +1,12 @@
 package com.sismics.music.core.dao.dbi.criteria;
+import com.sismics.music.core.dao.dbi.criteria.Criteria;
 
 /**
  * Artist criteria.
  *
  * @author bgamard
  */
-public class ArtistCriteria {
+public class ArtistCriteria extends Criteria {
     /**
      * Artist ID.
      */

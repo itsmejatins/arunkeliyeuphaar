@@ -15,6 +15,7 @@ import java.sql.SQLException;
 public class TrackDtoMapper implements ResultSetMapper<TrackDto> {
     @Override
     public TrackDto map(int index, ResultSet r, StatementContext ctx) throws SQLException {
+        System.out.println("FETCH FROM DB");
         TrackDto dto = new TrackDto();
         dto.setId(r.getString("id"));
         dto.setFileName(r.getString("fileName"));
@@ -33,6 +34,7 @@ public class TrackDtoMapper implements ResultSetMapper<TrackDto> {
         dto.setAlbumId(r.getString("albumId"));
         dto.setAlbumName(r.getString("albumName"));
         dto.setAlbumArt(r.getString("albumArt"));
+        dto.setOwner(r.getString("ownerId"));
 
         return dto;
     }

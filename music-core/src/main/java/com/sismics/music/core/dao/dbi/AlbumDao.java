@@ -5,6 +5,7 @@ import com.sismics.music.core.dao.dbi.criteria.AlbumCriteria;
 import com.sismics.music.core.dao.dbi.dto.AlbumDto;
 import com.sismics.music.core.dao.dbi.mapper.AlbumDtoMapper;
 import com.sismics.music.core.dao.dbi.mapper.AlbumMapper;
+import com.sismics.music.core.dao.dbi.query_creators.AlbumQueryCreator;
 import com.sismics.music.core.model.dbi.Album;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.util.context.ThreadLocalContext;
@@ -24,42 +25,47 @@ import java.util.*;
 public class AlbumDao extends BaseDao<AlbumDto, AlbumCriteria> {
     @Override
     public QueryParam getQueryParam(AlbumCriteria criteria, FilterCriteria filterCriteria) {
+        // List<String> criteriaList = new ArrayList<>();
+        // Map<String, Object> parameterMap = new HashMap<>();
+
+        // StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0, a.albumart as albumArt, a.artist_id as artistId, ar.name as artistName, a.updatedate as c1, ");
+        // if (criteria.getUserId() == null) {
+        //     sb.append("sum(0) as c2");
+        // } else {
+        //     sb.append("sum(utr.playcount) as c2");
+        // }
+        // sb.append(" from t_album a ");
+        // sb.append(" join t_artist ar on(ar.id = a.artist_id) ");
+        // if (criteria.getUserId() != null) {
+        //     sb.append(" left join t_track tr on(tr.album_id = a.id) ");
+        //     sb.append(" left join t_user_track utr on(tr.id = utr.track_id) ");
+        // }
+
+        // // Adds search criteria
+        // criteriaList.add("ar.deletedate is null");
+        // criteriaList.add("a.deletedate is null");
+        // if (criteria.getId() != null) {
+        //     criteriaList.add("a.id = :id");
+        //     parameterMap.put("id", criteria.getId());
+        // }
+        // if (criteria.getDirectoryId() != null) {
+        //     criteriaList.add("a.directory_id = :directoryId");
+        //     parameterMap.put("directoryId", criteria.getDirectoryId());
+        // }
+        // if (criteria.getArtistId() != null) {
+        //     criteriaList.add("ar.id = :artistId");
+        //     parameterMap.put("artistId", criteria.getArtistId());
+        // }
+        // if (criteria.getNameLike() != null) {
+        //     criteriaList.add("(lower(a.name) like lower(:like) or lower(ar.name) like lower(:like))");
+        //     parameterMap.put("like", "%" + criteria.getNameLike() + "%");
+        // }
+
         List<String> criteriaList = new ArrayList<>();
         Map<String, Object> parameterMap = new HashMap<>();
 
-        StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0, a.albumart as albumArt, a.artist_id as artistId, ar.name as artistName, a.updatedate as c1, ");
-        if (criteria.getUserId() == null) {
-            sb.append("sum(0) as c2");
-        } else {
-            sb.append("sum(utr.playcount) as c2");
-        }
-        sb.append(" from t_album a ");
-        sb.append(" join t_artist ar on(ar.id = a.artist_id) ");
-        if (criteria.getUserId() != null) {
-            sb.append(" left join t_track tr on(tr.album_id = a.id) ");
-            sb.append(" left join t_user_track utr on(tr.id = utr.track_id) ");
-        }
-
-        // Adds search criteria
-        criteriaList.add("ar.deletedate is null");
-        criteriaList.add("a.deletedate is null");
-        if (criteria.getId() != null) {
-            criteriaList.add("a.id = :id");
-            parameterMap.put("id", criteria.getId());
-        }
-        if (criteria.getDirectoryId() != null) {
-            criteriaList.add("a.directory_id = :directoryId");
-            parameterMap.put("directoryId", criteria.getDirectoryId());
-        }
-        if (criteria.getArtistId() != null) {
-            criteriaList.add("ar.id = :artistId");
-            parameterMap.put("artistId", criteria.getArtistId());
-        }
-        if (criteria.getNameLike() != null) {
-            criteriaList.add("(lower(a.name) like lower(:like) or lower(ar.name) like lower(:like))");
-            parameterMap.put("like", "%" + criteria.getNameLike() + "%");
-        }
-
+        AlbumQueryCreator queryCreator = new AlbumQueryCreator();
+        StringBuilder sb = queryCreator.getQueryParams(criteria, criteriaList, parameterMap);
         return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, Lists.newArrayList("a.id"), new AlbumDtoMapper());
     }
 

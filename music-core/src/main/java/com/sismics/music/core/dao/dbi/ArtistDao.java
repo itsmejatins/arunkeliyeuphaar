@@ -4,6 +4,7 @@ import com.sismics.music.core.dao.dbi.criteria.ArtistCriteria;
 import com.sismics.music.core.dao.dbi.dto.ArtistDto;
 import com.sismics.music.core.dao.dbi.mapper.ArtistDtoMapper;
 import com.sismics.music.core.dao.dbi.mapper.ArtistMapper;
+import com.sismics.music.core.dao.dbi.query_creators.ArtistQueryCreator;
 import com.sismics.music.core.model.dbi.Artist;
 import com.sismics.music.core.util.dbi.QueryParam;
 import com.sismics.util.context.ThreadLocalContext;
@@ -22,23 +23,27 @@ import java.util.*;
 public class ArtistDao extends BaseDao<ArtistDto, ArtistCriteria> {
     @Override
     protected QueryParam getQueryParam(ArtistCriteria criteria, FilterCriteria filterCriteria) {
+        // List<String> criteriaList = new ArrayList<>();
+        // Map<String, Object> parameterMap = new HashMap<>();
+
+        // StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0 ");
+        // sb.append(" from t_artist a ");
+
+        // // Adds search criteria
+        // criteriaList.add("a.deletedate is null");
+        // if (criteria.getId() != null) {
+        //     criteriaList.add("a.id = :id");
+        //     parameterMap.put("id", criteria.getId());
+        // }
+        // if (criteria.getNameLike() != null) {
+        //     criteriaList.add("lower(a.name) like lower(:nameLike)");
+        //     parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
+        // }
         List<String> criteriaList = new ArrayList<>();
         Map<String, Object> parameterMap = new HashMap<>();
 
-        StringBuilder sb = new StringBuilder("select a.id as id, a.name as c0 ");
-        sb.append(" from t_artist a ");
-
-        // Adds search criteria
-        criteriaList.add("a.deletedate is null");
-        if (criteria.getId() != null) {
-            criteriaList.add("a.id = :id");
-            parameterMap.put("id", criteria.getId());
-        }
-        if (criteria.getNameLike() != null) {
-            criteriaList.add("lower(a.name) like lower(:nameLike)");
-            parameterMap.put("nameLike", "%" + criteria.getNameLike() + "%");
-        }
-
+        ArtistQueryCreator queryCreator = new ArtistQueryCreator();
+        StringBuilder sb = queryCreator.getQueryParams(criteria, criteriaList, parameterMap);
         return new QueryParam(sb.toString(), criteriaList, parameterMap, null, filterCriteria, new ArtistDtoMapper());
     }
 

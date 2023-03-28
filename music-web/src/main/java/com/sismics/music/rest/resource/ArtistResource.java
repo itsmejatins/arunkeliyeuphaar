@@ -71,9 +71,29 @@ public class ArtistResource extends BaseResource {
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
         for (ArtistDto artist : paginatedList.getResultList()) {
-            items.add(Json.createObjectBuilder()
+
+            TrackDao trackDao = new TrackDao();
+            List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria()
+                    .setUserId(principal.getId())
+                    .setArtistId(artist.getId()));
+            
+            int totalcount = 0;
+            for (TrackDto trackDto : trackList) {
+                if(trackDto.getOwner() == principal.getId()){
+                    totalcount += 1;
+                }
+            }
+
+            // System.out.println
+            // System.out.println(artist.name);
+            // System.out.println(totalcount);
+
+            if(totalcount != 0){
+                items.add(Json.createObjectBuilder()
                     .add("id", artist.getId())
                     .add("name", artist.getName()));
+            }
+            
         }
         
         response.add("total", paginatedList.getResultCount());
@@ -116,7 +136,45 @@ public class ArtistResource extends BaseResource {
 
         JsonArrayBuilder albums = Json.createArrayBuilder();
         for (AlbumDto albumDto : albumList) {
-            albums.add(Json.createObjectBuilder()
+
+            JsonArrayBuilder tracks = Json.createArrayBuilder();
+            TrackDao trackDao = new TrackDao();
+            List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria()
+                    .setAlbumId(albumDto.getId())
+                    .setUserId(principal.getId()));
+            
+
+            int totalcount = 0;
+            for (TrackDto trackDto : trackList) {
+                // System.out.println("BB");
+                // System.out.println(trackDto.getOwner());
+                // System.out.println(trackDto.getTitle());
+                if(trackDto.getOwner() == principal.getId()){
+                    totalcount += 1;
+                    tracks.add(Json.createObjectBuilder()
+                            .add("order", JsonUtil.nullable(trackDto.getOrder()))
+                            .add("id", trackDto.getId())
+                            .add("title", trackDto.getTitle())
+                            .add("year", JsonUtil.nullable(trackDto.getYear()))
+                            .add("genre", JsonUtil.nullable(trackDto.getGenre()))
+                            .add("length", trackDto.getLength())
+                            .add("bitrate", trackDto.getBitrate())
+                            .add("vbr", trackDto.isVbr())
+                            .add("format", trackDto.getFormat())
+                            .add("filename", trackDto.getFileName())
+                            .add("play_count", trackDto.getUserTrackPlayCount())
+                            .add("liked", trackDto.isUserTrackLike())
+                            .add("artist", Json.createObjectBuilder()
+                                    .add("id", trackDto.getArtistId())
+                                    .add("name", trackDto.getArtistName())));
+                }
+            }
+
+            System.out.println(albumDto.getName());
+            System.out.println(totalcount);
+
+            if(totalcount != 0){
+                albums.add(Json.createObjectBuilder()
                     .add("id", albumDto.getId())
                     .add("name", albumDto.getName())
                     .add("update_date", albumDto.getUpdateDate().getTime())
@@ -125,6 +183,7 @@ public class ArtistResource extends BaseResource {
                     .add("artist", Json.createObjectBuilder()
                             .add("id", albumDto.getArtistId())
                             .add("name", albumDto.getArtistName())));
+            }
         }
         response.add("albums", albums);
         
@@ -136,25 +195,27 @@ public class ArtistResource extends BaseResource {
         
         JsonArrayBuilder tracks = Json.createArrayBuilder();
         for (TrackDto trackDto : trackList) {
-            tracks.add(Json.createObjectBuilder()
-                    .add("order", JsonUtil.nullable(trackDto.getOrder()))
-                    .add("id", trackDto.getId())
-                    .add("title", trackDto.getTitle())
-                    .add("year", JsonUtil.nullable(trackDto.getYear()))
-                    .add("genre", JsonUtil.nullable(trackDto.getGenre()))
-                    .add("length", trackDto.getLength())
-                    .add("bitrate", trackDto.getBitrate())
-                    .add("vbr", trackDto.isVbr())
-                    .add("format", trackDto.getFormat())
-                    .add("filename", trackDto.getFileName())
-                    .add("play_count", trackDto.getUserTrackPlayCount())
-                    .add("liked", trackDto.isUserTrackLike())
-                    .add("album", Json.createObjectBuilder()
-                            .add("id", trackDto.getAlbumId())
-                            .add("name", trackDto.getAlbumName()))
-                    .add("artist", Json.createObjectBuilder()
-                            .add("id", trackDto.getArtistId())
-                            .add("name", trackDto.getArtistName())));
+            if(trackDto.getOwner() == principal.getId()){
+                tracks.add(Json.createObjectBuilder()
+                        .add("order", JsonUtil.nullable(trackDto.getOrder()))
+                        .add("id", trackDto.getId())
+                        .add("title", trackDto.getTitle())
+                        .add("year", JsonUtil.nullable(trackDto.getYear()))
+                        .add("genre", JsonUtil.nullable(trackDto.getGenre()))
+                        .add("length", trackDto.getLength())
+                        .add("bitrate", trackDto.getBitrate())
+                        .add("vbr", trackDto.isVbr())
+                        .add("format", trackDto.getFormat())
+                        .add("filename", trackDto.getFileName())
+                        .add("play_count", trackDto.getUserTrackPlayCount())
+                        .add("liked", trackDto.isUserTrackLike())
+                        .add("album", Json.createObjectBuilder()
+                                .add("id", trackDto.getAlbumId())
+                                .add("name", trackDto.getAlbumName()))
+                        .add("artist", Json.createObjectBuilder()
+                                .add("id", trackDto.getArtistId())
+                                .add("name", trackDto.getArtistName())));
+            }
         }
         response.add("tracks", tracks);
 
