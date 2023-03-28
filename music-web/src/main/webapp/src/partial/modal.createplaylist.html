@@ -8,10 +8,51 @@
       <div class="col-sm-10">
         <input type="text" id="inputPlaylistName" class="form-control" ng-model="name" ng-required />
       </div>
+
+      <label for="allowedUsers" class="col-sm-2 control-label" ng-if="playlistType!=0">Users</label>
+      <div class="col-sm-10" ng-if="playlistType!=0">
+        <input type="text" class="form-control" ng-model="$parent.allowedUsers" ng-required />
+      </div>
+
+      
+
     </div>
+
+    
   </div>
+
+      <table style="margin-left: 45px;">
+        <tr>
+          <td> <input type="radio" id="privatePlaylist" name="playlistType" value="private"  ng-click="changePlaylistType(0)" checked> </td>
+          <td> <label for="private" style="padding-left:15px;">Private</label> </td>
+        </tr>
+        <tr>
+          <td> <input type="radio" id="publicPlaylist" name="playlistType" value="public" ng-click="changePlaylistType(1)"> </td>
+          <td> <label for="public" style="padding-left:15px;">Public</label> </td>
+        </tr>
+        <tr>
+          <td> <input type="radio" id="collaborativePlaylist" name="playlistType" value="collaborative"  ng-click="changePlaylistType(2)"> </td>
+          <td> <label for="collaborative" style="padding-left:15px;">Collaborative</label> </td>
+        </tr>
+      </table>
+      <!-- <div style="width:20%">
+        <input type="radio" id="privatePlaylist" name="playlistType" value="private"  ng-click="changePlaylistType(0)" checked>
+        <label for="private" style="float:left;">Private</label>
+      </div>
+      
+      <div style="width:20%">
+        <input type="radio" id="publicPlaylist" name="playlistType" value="public" ng-click="changePlaylistType(1)">
+        <label for="public" style="float:left;">Public</label>
+      </div>
+
+      <div style="width:20%">
+
+          <input type="radio" id="collaborativePlaylist" name="playlistType" value="collaborative"  ng-click="changePlaylistType(2)">
+          <label for="collaborative" style="float:right;">Collaborative</label>
+
+      </div> -->
   <div class="modal-footer">
-    <button class="btn btn-primary" ng-click="ok(name)">OK</button>
+    <button class="btn btn-primary" ng-click=" ok(name, allowedUsers)">OK</button>
     <button class="btn btn-default" ng-click="cancel()">Cancel</button>
   </div>
 </form>

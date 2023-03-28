@@ -62,6 +62,8 @@ public class AlbumResource extends BaseResource {
             throw new ForbiddenClientException();
         }
 
+        System.out.println("HERE");
+
         // Get album info
         AlbumDao albumDao = new AlbumDao();
         List<AlbumDto> albumList = albumDao.findByCriteria(new AlbumCriteria().setUserId(principal.getId()).setId(id));
@@ -88,22 +90,27 @@ public class AlbumResource extends BaseResource {
                 .setUserId(principal.getId()));
         
         for (TrackDto trackDto : trackList) {
-            tracks.add(Json.createObjectBuilder()
-                    .add("order", JsonUtil.nullable(trackDto.getOrder()))
-                    .add("id", trackDto.getId())
-                    .add("title", trackDto.getTitle())
-                    .add("year", JsonUtil.nullable(trackDto.getYear()))
-                    .add("genre", JsonUtil.nullable(trackDto.getGenre()))
-                    .add("length", trackDto.getLength())
-                    .add("bitrate", trackDto.getBitrate())
-                    .add("vbr", trackDto.isVbr())
-                    .add("format", trackDto.getFormat())
-                    .add("filename", trackDto.getFileName())
-                    .add("play_count", trackDto.getUserTrackPlayCount())
-                    .add("liked", trackDto.isUserTrackLike())
-                    .add("artist", Json.createObjectBuilder()
-                            .add("id", trackDto.getArtistId())
-                            .add("name", trackDto.getArtistName())));
+            System.out.println("BB");
+            System.out.println(trackDto.getOwner());
+            System.out.println(trackDto.getTitle());
+            if(trackDto.getOwner() == principal.getId()){
+                tracks.add(Json.createObjectBuilder()
+                        .add("order", JsonUtil.nullable(trackDto.getOrder()))
+                        .add("id", trackDto.getId())
+                        .add("title", trackDto.getTitle())
+                        .add("year", JsonUtil.nullable(trackDto.getYear()))
+                        .add("genre", JsonUtil.nullable(trackDto.getGenre()))
+                        .add("length", trackDto.getLength())
+                        .add("bitrate", trackDto.getBitrate())
+                        .add("vbr", trackDto.isVbr())
+                        .add("format", trackDto.getFormat())
+                        .add("filename", trackDto.getFileName())
+                        .add("play_count", trackDto.getUserTrackPlayCount())
+                        .add("liked", trackDto.isUserTrackLike())
+                        .add("artist", Json.createObjectBuilder()
+                                .add("id", trackDto.getArtistId())
+                                .add("name", trackDto.getArtistName())));
+            }
         }
         response.add("tracks", tracks);
 
@@ -274,6 +281,8 @@ public class AlbumResource extends BaseResource {
             throw new ForbiddenClientException();
         }
 
+        System.out.println("RETURNING ACTIVE ALBUMS");
+
         AlbumDao albumDao = new AlbumDao();
         PaginatedList<AlbumDto> paginatedList = PaginatedLists.create(limit, offset);
         SortCriteria sortCriteria = new SortCriteria(sortColumn, asc);
@@ -285,7 +294,44 @@ public class AlbumResource extends BaseResource {
         JsonObjectBuilder response = Json.createObjectBuilder();
         JsonArrayBuilder items = Json.createArrayBuilder();
         for (AlbumDto album : paginatedList.getResultList()) {
-            items.add(Json.createObjectBuilder()
+
+
+            JsonArrayBuilder tracks = Json.createArrayBuilder();
+            TrackDao trackDao = new TrackDao();
+            List<TrackDto> trackList = trackDao.findByCriteria(new TrackCriteria()
+                    .setAlbumId(album.getId())
+                    .setUserId(principal.getId()));
+            
+            int totalcount = 0;
+            for (TrackDto trackDto : trackList) {
+                // System.out.println("BB");
+                // System.out.println(trackDto.getOwner());
+                // System.out.println(trackDto.getTitle());
+                if(trackDto.getOwner() == principal.getId()){
+                    totalcount += 1;
+                    tracks.add(Json.createObjectBuilder()
+                            .add("order", JsonUtil.nullable(trackDto.getOrder()))
+                            .add("id", trackDto.getId())
+                            .add("title", trackDto.getTitle())
+                            .add("year", JsonUtil.nullable(trackDto.getYear()))
+                            .add("genre", JsonUtil.nullable(trackDto.getGenre()))
+                            .add("length", trackDto.getLength())
+                            .add("bitrate", trackDto.getBitrate())
+                            .add("vbr", trackDto.isVbr())
+                            .add("format", trackDto.getFormat())
+                            .add("filename", trackDto.getFileName())
+                            .add("play_count", trackDto.getUserTrackPlayCount())
+                            .add("liked", trackDto.isUserTrackLike())
+                            .add("artist", Json.createObjectBuilder()
+                                    .add("id", trackDto.getArtistId())
+                                    .add("name", trackDto.getArtistName())));
+                }
+            }
+
+
+
+            if(totalcount != 0){
+                items.add(Json.createObjectBuilder()
                     .add("id", album.getId())
                     .add("name", album.getName())
                     .add("update_date", album.getUpdateDate().getTime())
@@ -294,6 +340,9 @@ public class AlbumResource extends BaseResource {
                     .add("artist", Json.createObjectBuilder()
                             .add("id", album.getArtistId())
                             .add("name", album.getArtistName())));
+            }
+
+            
         }
         
         response.add("total", paginatedList.getResultCount());

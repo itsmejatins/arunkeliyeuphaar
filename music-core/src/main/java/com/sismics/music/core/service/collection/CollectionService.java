@@ -204,6 +204,7 @@ public class CollectionService extends AbstractScheduledService {
         
         if (tag == null) {
             // No tag available, use filename as title and album artist as artist, and guess the rest
+            track.setOwner("");
             track.setTitle(Files.getNameWithoutExtension(file.getFileName().toString()));
             track.setArtistId(albumArtist.getId());
             track.setLength((int) (file.toFile().length() / 128000));
@@ -235,6 +236,8 @@ public class CollectionService extends AbstractScheduledService {
                     // Ignore parsing errors
                 }
             }
+
+            track.setOwner(StringUtils.abbreviate(tag.getFirst(FieldKey.COMMENT), 2000).trim());
     
             // Track title (can be empty string)
             track.setTitle(StringUtils.abbreviate(tag.getFirst(FieldKey.TITLE), 2000).trim());

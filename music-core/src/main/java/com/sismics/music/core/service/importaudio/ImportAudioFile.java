@@ -20,8 +20,18 @@ public class ImportAudioFile {
 
     private Integer year;
 
+    private String owner;
+
     public ImportAudioFile(File file) {
         this.file = file;
+    }
+
+    public String getOwner(){
+        return owner;
+    }
+
+    public void setOwner(String owner){
+        this.owner = owner;
     }
 
     public File getFile() {

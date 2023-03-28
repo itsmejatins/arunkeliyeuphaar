@@ -1,11 +1,12 @@
 package com.sismics.music.core.dao.dbi.criteria;
 
+import com.sismics.music.core.dao.dbi.criteria.Criteria;
 /**
  * Album criteria.
  *
  * @author jtremeaux
  */
-public class AlbumCriteria {
+public class AlbumCriteria extends Criteria {
     /**
      * Album ID.
      */

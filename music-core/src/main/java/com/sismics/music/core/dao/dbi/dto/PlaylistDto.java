@@ -39,8 +39,24 @@ public class PlaylistDto {
         this.id = id;
     }
 
-    public String getName() {
+    // public String getName(){
+    //     return name;
+    // }
+
+    public String getFullName() {
         return name;
+    }
+
+    public String getName() {
+        // System.out.println("DTO");
+        // System.out.println(name);
+        if(name == null)
+            return name;
+        else{
+            // System.out.println("DTO ELSE");
+            // System.out.println(name.split("\\$")[0]);
+            return name.split("\\$")[0];
+        }
     }
 
     public void setName(String name) {

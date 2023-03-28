@@ -85,6 +85,9 @@ public class Track {
      */
     private Date deleteDate;
 
+
+    private String owner;
+
     public Track() {
     }
 
@@ -104,6 +107,14 @@ public class Track {
         this.format = format;
         this.createDate = createDate;
         this.deleteDate = deleteDate;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner){
+        this.owner = owner;
     }
 
     /**
