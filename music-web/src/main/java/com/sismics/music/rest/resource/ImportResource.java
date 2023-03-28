@@ -308,10 +308,13 @@ public class ImportResource extends BaseResource {
                 throw new ClientException("ValidationError", "This directory cannot be found");
             }
         }
+
+        // System.out.println("OWNER");
+        // System.out.println();
         
         // Tag the file
         try {
-            AppContext.getInstance().getImportAudioService().tagFile(fileName, order, title, album, artist, albumArtist, directory);
+            AppContext.getInstance().getImportAudioService().tagFile(fileName, order, title, album, artist, albumArtist, directory, principal.getId());
         } catch (Exception e) {
             throw new ServerException("TagError", e.getMessage(), e);
         }
