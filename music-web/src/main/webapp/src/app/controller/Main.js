@@ -18,56 +18,8 @@ angular.module('music').controller('Main', function($rootScope, $state, $scope, 
 		})
 	}
 
-	//	$scope.searchSpotifyRecom = function(searchData) {
-	//
-	//		var myArray = searchData.split("-");
-	//
-	//		var promises = [];
-	//
-	//		for (var i = 0; i < myArray.length; i++) {
-	//
-	//			var promise = Restangular.one('user/searchOnSpotify').get({ sentData: myArray[i] });
-	//			promises.push(promise);
-	//
-	//		}
-	//
-	//		Promise.all(promises).then(function(responses) {
-	//			var dataa = [];
-	//			for (var j = 0; j < responses.length; j++) {
-	//				dataa = dataa.concat(responses[j].tracks);
-	//			}
-	//			$scope.rData = dataa;
-	//
-	//		});
-	//
-	//
-	//	}
-	//
-	//	$scope.searchLastFMRecom = function(searchData) {
-	//
-	//		var myArray = searchData.split("-");
-	//
-	//		var promises = [];
-	//
-	//		for (var i = 0; i < myArray.length; i++) {
-	//
-	//			var promise = Restangular.one('user/searchOnLastFM').get({ sentData: myArray[i] });
-	//			promises.push(promise);
-	//
-	//		}
-	//
-	//		Promise.all(promises).then(function(responses) {
-	//			var dataa = [];
-	//			for (var j = 0; j < responses.length; j++) {
-	//				dataa = dataa.concat(responses[j].tracks);
-	//			}
-	//			$scope.rData = dataa;
-	//
-	//		});
-	//
-	//	}
 
-	$scope.recommendThirdParty = function(searchData, service) {
+	$scope.searchBasedRecommendation = function(searchData, service) {
 
 		var myArray = searchData.split("-");
 
@@ -75,7 +27,7 @@ angular.module('music').controller('Main', function($rootScope, $state, $scope, 
 
 		for (var i = 0; i < myArray.length; i++) {
 
-			var promise = Restangular.one('user/recommend').get({ sentData: myArray[i], service: service });
+			var promise = Restangular.one('user/searchThirdParty').get({ sentData: myArray[i], service: service });
 			promises.push(promise);
 
 		}

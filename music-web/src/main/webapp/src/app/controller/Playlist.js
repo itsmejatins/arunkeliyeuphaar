@@ -10,7 +10,7 @@ angular.module('music').controller('Playlist', function($scope, $state, $statePa
   });
   
   //Recommend from Spotify
-  $scope.spotifyRecommendation = function(data) {
+  $scope.spotifyRecommendation = function() {
     console.log("Reached in spotifyRecommendation")
     console.log($scope.playlist.tracks)
     
@@ -28,7 +28,7 @@ angular.module('music').controller('Playlist', function($scope, $state, $statePa
 	}
    
     console.log(artists);
-    Restangular.one('user/recommendSpotify').get({ A:artists}).then(function(response) {
+    Restangular.one('user/recommendThirdParty').get({ A:artists, T:null, service: "spotify"}).then(function(response) {
 		$scope.spotify = response.tracks;
 		console.log(response);
 
@@ -38,7 +38,7 @@ angular.module('music').controller('Playlist', function($scope, $state, $statePa
   };
 
   //Recommend from LastFM
-  $scope.lastFMRecommendation = function(data) {
+  $scope.lastFMRecommendation = function() {
     console.log("Reached in lastFMRecommendation")
     
     var tracks = $scope.playlist.tracks;
@@ -60,7 +60,7 @@ angular.module('music').controller('Playlist', function($scope, $state, $statePa
 	}
     console.log(titles);
     console.log(artists);
-    Restangular.one('user/recommendLastFm').get({ A:artists ,  T: titles  }).then(function(response) {
+    Restangular.one('user/recommendThirdParty').get({ A:artists ,  T: titles, service:"lastfm" }).then(function(response) {
 		$scope.lastFM = response.tracks;
 		console.log(response);
 	

@@ -26,8 +26,10 @@
     <form>
       <input size="60" type="text" placeholder="Input list of songs separated by -" ng-model = "recomData">
 
-      <button class="btn btn-primary mr-8" ng-click = "recommendThirdParty(recomData), 'spotify'">Spotify Search</button>
-      <button class="btn btn-primary mr-7" ng-click = "recommendThirdParty(recomData), 'lastfm'">LastFM Search</button>
+      <!-- <button class="btn btn-primary mr-8" ng-click = "searchSpotifyRecom(recomData)">Spotify Search</button>
+      <button class="btn btn-primary mr-7" ng-click = "searchLastFMRecom(recomData)">LastFM Search</button> -->
+      <button class="btn btn-primary mr-8" ng-click = "searchBasedRecommendation(recomData, 'spotify')">Spotify Search</button>
+      <button class="btn btn-primary mr-7" ng-click = "searchBasedRecommendation(recomData, 'lastfm')">LastFM Search</button>
       </form>
       
       
