@@ -1,58 +1,15 @@
 package com.sismics.thirdparty.recommendation;
 
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.ws.rs.core.Response;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sismics.util.thirdparty.LastFmUtil;
+import com.sismics.util.thirdparty.Util;
 
 public class LastFmPlaylistRecommendStrategy implements RecommendationStrategy {
-
-	private Response renderJson(JsonObjectBuilder response) {
-		return Response.ok().entity(response.build()).build();
-	}
-
-	private static JsonNode getLastFMRecommendation(String artist, String title) throws Exception {
-
-		String urlSearch = "http://ws.audioscrobbler.com/2.0/?method=track.getsimilar&artist=";
-		urlSearch += artist;
-		urlSearch += "&track=";
-		urlSearch += title;
-		urlSearch += "&api_key=e3dbf66a59b12c26d8e7308512a79120&format=json&limit=5";
-
-		URL url = new URL(urlSearch);
-
-		HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-
-		connection.setRequestMethod("GET");
-
-		connection.setRequestProperty("Accept", "application/json");
-		connection.setRequestProperty("Connection", "keep-alive");
-
-		// Send the request and get response
-		BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-		String inputLine;
-		StringBuffer response = new StringBuffer();
-		while ((inputLine = in.readLine()) != null) {
-			response.append(inputLine);
-		}
-		in.close();
-
-		ObjectMapper mapper = new ObjectMapper();
-		JsonParser parser = mapper.getFactory().createParser(response.toString());
-
-		JsonNode jsonNode = mapper.readTree(parser);
-		return jsonNode;
-
-	}
 
 	@Override
 	public Response recommend(RecommendDto dto) throws Exception {
@@ -73,9 +30,17 @@ public class LastFmPlaylistRecommendStrategy implements RecommendationStrategy {
 		JsonObjectBuilder finalBuilder = Json.createObjectBuilder();
 		JsonArrayBuilder arrayBuilder = Json.createArrayBuilder();
 
+		fillRecommendationData(artistsList, titlesList, arrayBuilder);
+
+		finalBuilder.add("tracks", arrayBuilder);
+		return Util.renderJson(finalBuilder);
+	}
+
+	private void fillRecommendationData(String[] artistsList, String[] titlesList, JsonArrayBuilder arrayBuilder)
+			throws Exception {
 		for (int i = 0; i < Math.min(artistsList.length, titlesList.length); i++) {
 
-			JsonNode jsonNode = getLastFMRecommendation(artistsList[i], titlesList[i]);
+			JsonNode jsonNode = LastFmUtil.getLastFMRecommendation(artistsList[i], titlesList[i]);
 
 			JsonNode s = jsonNode.get("similartracks").get("track");
 
@@ -98,9 +63,6 @@ public class LastFmPlaylistRecommendStrategy implements RecommendationStrategy {
 			}
 
 		}
-
-		finalBuilder.add("tracks", arrayBuilder);
-		return renderJson(finalBuilder);
 	}
 
 }
